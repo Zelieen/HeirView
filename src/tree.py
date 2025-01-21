@@ -1,8 +1,8 @@
 from node import Person, Event
 
 class Tree:
-    def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the highest ID in the tree.
-        self._ID_count = 0 # equals next free ID
+    def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the ID count in the tree.
+        self._ID_count = 0 # should equal next free ID
         self.root_ID = None
         self.persons = {}
 
@@ -15,10 +15,12 @@ class Tree:
     def add_person(self, person):
         new_person = person # a Person()
         if self._ID_count == 0: # first person in the tree
-            self.root_ID = 0
-        
-        new_person._ID = self._ID_count
-        self._ID_count += 1            
+            self.root_ID = new_person._ID
+        self._ID_count += 1
+        if new_person._ID in self.persons:
+            print("ID is already in use")
+            #maybe add information to existing person later
+            return            
         self.persons[new_person._ID] = new_person # add person to tree's dictionary
         return self.persons[new_person._ID]
 
@@ -164,3 +166,26 @@ class Tree:
         #replace ID from dictionary self.persons with highest ID person <-- keep ID count continuous and small
         #replace highest ID with removed ID --> keep the internal ID count as low as possible
         #lower self._ID_count by 1
+
+    def get_all_free_IDs(self):
+        index_list = sorted(list(self.persons.keys()))
+        free_IDs = []
+        x = 0 # keep track of position in index_list
+        for i in range(index_list[-1]):
+            if index_list[x] > i:
+                free_IDs.append(i)
+            else:
+                x += 1
+        return free_IDs
+    
+    def get_next_free_ID(self):
+        free_ID = None
+        index_list = sorted(list(self.persons.keys()))
+        for i in range(len(index_list)):
+            if i < index_list[i]:
+                free_ID = i
+                break
+
+        if not free_ID:
+            free_ID = self._ID_count
+        return free_ID

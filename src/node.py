@@ -1,6 +1,6 @@
 class Person:
-    def __init__(self, given_name=None, surname=None):
-        self._ID = None #the ID in the family tree
+    def __init__(self, ID=None, given_name=None, surname=None):
+        self._ID = ID #the ID in the family tree
         self.given_name = ""
         self.surname = ""
 
@@ -28,7 +28,7 @@ class Person:
         return f"This is Person #{str(self._ID)}: {self.given_name} {self.surname}."
     
     def __repr__(self):
-        return f"Person({self.given_name}, {self.surname})"
+        return f"Person({self._ID}, {self.given_name}, {self.surname})"
 
     def add_event(self, typ, person_list=None, date=None, place=None ):
         if typ.lower() == "birth":
