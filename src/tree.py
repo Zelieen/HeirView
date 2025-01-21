@@ -2,19 +2,24 @@ from node import Person, Event
 
 class Tree:
     def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the highest ID in the tree.
-        self._ID_count = None
+        self._ID_count = 0 # equals next free ID
         self.root_ID = None
         self.persons = {}
+
+    def __str__(self):
+        return f"A family tree with {str(self._ID_count)} persons in it."
+    
+    def __repr__(self):
+        return f"Tree()"
     
     def add_person(self, person):
-        new_person = person
-        if self._ID_count == None: # first person in the tree
+        new_person = person # a Person()
+        if self._ID_count == 0: # first person in the tree
             self.root_ID = 0
-            self._ID_count = 0
-        else:
-            self._ID_count += 1
+        
         new_person._ID = self._ID_count
-        self.persons[new_person._ID] = new_person
+        self._ID_count += 1            
+        self.persons[new_person._ID] = new_person # add person to tree's dictionary
         return self.persons[new_person._ID]
 
     def find_person(self, ID):
@@ -23,7 +28,7 @@ class Tree:
             found = self.persons[ID]
         return found
 
-    def add_child(self, person, child, as_mother):
+    def add_child(self, person, child=-1, as_mother=True):
         if not self.find_person(person):
             print (f"person #{person} not found")
             return
@@ -31,14 +36,16 @@ class Tree:
         if self.find_person(child):
             the_child = self.find_person(child)
         else: 
-            the_child = self.add_person(child)
+            print (f"person #{child} not found")
+            return
+            #the_child = self.add_person(child) # adding a new person needs a name preferably.
         the_person.children.append(the_child._ID)
         if as_mother:
             the_child.mother = the_person._ID
         else:
             the_child.father = the_person._ID
 
-    def add_parent(self, child, parent, as_mother):
+    def add_parent(self, child, parent=-1, as_mother=True):
         if not self.find_person(child):
             print (f"person #{child} not found")
             return
@@ -46,23 +53,25 @@ class Tree:
         if self.find_person(parent):
             the_parent = self.find_person(parent)
         else: 
-            the_parent = self.add_person(parent)
+            print (f"person #{parent} not found")
+            return
+            #the_parent = self.add_person(parent) # adding a new person needs a name preferably.
         the_parent.children.append(the_child._ID)
         if as_mother:
             the_child.mother = the_parent._ID
         else:
             the_child.father = the_parent._ID
 
-    def add_father(self, child, father):
-        self.add_parent(child, father, as_mother=True)
+    def add_father(self, child, father=-1):
+        self.add_parent(child, father, as_mother=False)
 
-    def add_mother(self, child, mother):
+    def add_mother(self, child, mother=-1):
         self.add_parent(child, mother, as_mother=True)
 
-    def add_his_child(self, person, child):
+    def add_his_child(self, person, child=-1):
         self.add_child(person, child, as_mother=False)
 
-    def add_her_child(self, person, child):
+    def add_her_child(self, person, child=-1):
         self.add_child(person, child, as_mother=True)
 
     def add_partnership(self, person1, person2):
@@ -78,6 +87,8 @@ class Tree:
         p1.partners.append(p2._ID)
         p2.partners.append(p1._ID)
 
+#--------
+    # incomplete function, do not use
     def set_new_ID(self, person, new_ID, force=False): # use with caution: tree performance relies on continuous IDs
         if not self.find_person(person):
             print(f"no such person with #{person} found")
@@ -91,7 +102,7 @@ class Tree:
         p = self.find_person(person)
         # to be continued
     
-    def swap_IDs(self, person1, person2):
+    def swap_IDs(self, person1, person2): # incomplete function, do not use
         if not self.find_person(person1):
             print(f"person1 #{person1} not found")
             return
@@ -104,7 +115,7 @@ class Tree:
         # swap all relations via set_new_ID
         # to be continued
     
-    def remove_person(self, person):
+    def remove_person(self, person): # incomplete function, do not use
         if not self.find_person(person):
             print(f"no such person with #{person} found")
             return
@@ -147,12 +158,9 @@ class Tree:
                             for o_event in other.events: # find event
                                 if o_event.type == event.type:
                                     o_event.persons.pop(to_remove) # remove to_remove from other person's event
-                                    if len(o_event.persons) == 1: #and o_event.type == "marriage":
+                                    if len(o_event.persons) == 1: #and o_event.type == "marriage":#
                                         other.events.pop(o_event) # delete event from other person
-
-
-
         # remove person itself from family tree
-        #replace ID from dictionary self.persons with highest ID
+        #replace ID from dictionary self.persons with highest ID person <-- keep ID count continuous and small
         #replace highest ID with removed ID --> keep the internal ID count as low as possible
         #lower self._ID_count by 1
