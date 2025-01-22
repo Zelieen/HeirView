@@ -1,4 +1,5 @@
 from node import Person, Event
+from importer import import_file
 
 class Tree:
     def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the ID count in the tree.
@@ -89,6 +90,63 @@ class Tree:
         p1.partners.append(p2._ID)
         p2.partners.append(p1._ID)
 
+    def add_event_to_person(self, person, event):
+        if not self.find_person(person):
+            print(f"person #{person} not found")
+            return
+        if not type(event) == type(Event("test", [])):
+            print(f"That was not a proper Event()")
+            return
+        p = self.find_person(person)
+        p.events.append(event)
+
+    def add_family(self, family):
+        if family.mother and family.father:
+            self.add_partnership(family.mother, family.father)
+            if family.marr:
+                self.add_event_to_person(family.mother, family.marr)
+                self.add_event_to_person(family.father, family.marr)
+        if len(family.children) > 0:
+            for child in family.children:
+                if family.mother:
+                    self.add_mother(child, family.mother)
+                if family.father:
+                    self.add_father(child, family.father)
+
+    def get_all_free_IDs(self):
+        index_list = sorted(list(self.persons.keys()))
+        free_IDs = []
+        x = 0 # keep track of position in index_list
+        for i in range(index_list[-1]):
+            if index_list[x] > i:
+                free_IDs.append(i)
+            else:
+                x += 1
+        return free_IDs
+    
+    def get_next_free_ID(self):
+        free_ID = None
+        index_list = sorted(list(self.persons.keys()))
+        for i in range(len(index_list)):
+            if i < index_list[i]:
+                free_ID = i
+                break
+
+        if not free_ID:
+            free_ID = self._ID_count
+        return free_ID
+
+    def import_tree_from_file(self, directory):
+        persons, families = import_file(directory)
+
+        for person in persons:
+            self.add_person(person)
+        for family in families:
+            self.add_family(family)
+        
+        print(f"imported {len(persons)} persons and {len(families)} families")
+        return
+
 #--------
     # incomplete function, do not use
     def set_new_ID(self, person, new_ID, force=False): # use with caution: tree performance relies on continuous IDs
@@ -166,26 +224,3 @@ class Tree:
         #replace ID from dictionary self.persons with highest ID person <-- keep ID count continuous and small
         #replace highest ID with removed ID --> keep the internal ID count as low as possible
         #lower self._ID_count by 1
-
-    def get_all_free_IDs(self):
-        index_list = sorted(list(self.persons.keys()))
-        free_IDs = []
-        x = 0 # keep track of position in index_list
-        for i in range(index_list[-1]):
-            if index_list[x] > i:
-                free_IDs.append(i)
-            else:
-                x += 1
-        return free_IDs
-    
-    def get_next_free_ID(self):
-        free_ID = None
-        index_list = sorted(list(self.persons.keys()))
-        for i in range(len(index_list)):
-            if i < index_list[i]:
-                free_ID = i
-                break
-
-        if not free_ID:
-            free_ID = self._ID_count
-        return free_ID

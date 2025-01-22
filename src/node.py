@@ -62,3 +62,16 @@ class Event:
     
     def __repr__(self):
         return f"Event({self.type}, {self.persons}, {self.date}, {self.place})"
+    
+class Family:
+    def __init__(self, mother_ID=None, father_ID=None, child_IDs=None, marr_date=None, marr_place=None):
+        self.mother = mother_ID
+        self.father = father_ID
+        self.children = child_IDs
+        self.marr = Event("marriage", [self.mother, self.father], marr_date, marr_place)
+
+    def __str__(self):
+        return f"This is a family: wife {str(self.mother)} and husband {self.father} with {len(self.children)} children."
+    
+    def __repr__(self):
+        return f"Family({self.mother}, {self.father}, {self.children}, {self.marr.date}, {self.marr.place})"

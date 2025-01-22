@@ -38,7 +38,7 @@ class TestNode(unittest.TestCase):
         self.assertEqual([(8, "2 VERS 5.5.1\n")], find_lines_by_tags(read, ["HEAD", "GEDC", "VERS"]))
 
     def test_collect_person_info(self):
-        self.assertEqual(1, collect_person_info(test_person_lines, 0))        
+        self.assertEqual(1, collect_person_info(test_person_lines, 0)[0])        
 
 if __name__ == "__main__":
     unittest.main()
