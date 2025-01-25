@@ -5,6 +5,7 @@ def read_in_file(directory):
     with open(directory) as f:
         lines = f.readlines()
     lines = [x.strip(" ") for x in lines] # Leading white space preceding a GEDCOM line should be ignored by the reading system
+    lines = [x.rstrip("\n") for x in lines]
     return lines
 
 def find_blocks(lines):
@@ -37,7 +38,7 @@ def find_lines_by_tags(lines, tag_list, start=0): # finds the lines that are nes
 
 def get_version(lines):
     version_lines = find_lines_by_tags(lines, ["HEAD", "GEDC", "VERS"])
-    version = version_lines[0][1][7:-1]
+    version = version_lines[0][1][7:]
     return version
 
 def get_person_lines(lines):
@@ -49,62 +50,76 @@ def get_family_lines(lines):
     return family_lines
 
 def collect_person_info(lines, start=0, end=None):
-    if not end:
-        end = start + 1
-        while lines[end][0] != "0": # find line with next entry
-            end += 1
+    if end == None:
+        end = len(lines) - 1
     
     # get ID
     parts = lines[start].split("@")
     p_ID = int(parts[1][1:])
     
     # get given name
-    g_name_line = find_lines_by_tags(lines[start:end], ["NAME", "GIVN"])[0][1]
-    p_g_name = g_name_line.split("GIVN ")[1]
-    print(p_g_name)
+    p_g_name = None
+    g_name_line = find_lines_by_tags(lines[start:end], ["NAME", "GIVN"])
+    if g_name_line != []:
+        p_g_name = g_name_line[0][1].split("GIVN ")[1]
      # get surname
-    surname_line = find_lines_by_tags(lines[start:end], ["NAME", "SURN"])[0][1]
-    p_surname = surname_line.split("SURN ")[1]
-    print(p_surname)
+    p_surname = None
+    surname_line = find_lines_by_tags(lines[start:end], ["NAME", "SURN"])
+    if surname_line != []:
+        p_surname = surname_line[0][1].split("SURN ")[1]
 
     # get birth
-    birth_date_line = find_lines_by_tags(lines[start:end], ["BIRT", "DATE"])[0][1]
-    birth_date = birth_date_line.split("DATE ")[1]
-    birth_place_line = find_lines_by_tags(lines[start:end], ["BIRT", "PLAC"])[0][1]
-    birth_place = birth_place_line.split("PLAC ")[1].split(",")[0]
+    birth_date = None
+    birth_date_line = find_lines_by_tags(lines[start:end], ["BIRT", "DATE"])
+    if birth_date_line != []:
+        birth_date = birth_date_line[0][1].split("DATE ")[1]
+    birth_place = None
+    birth_place_line = find_lines_by_tags(lines[start:end], ["BIRT", "PLAC"])
+    if birth_place_line != []:
+        birth_place = birth_place_line[0][1].split("PLAC ")[1].split(",")[0]
     
     # get death
-    death_date_line = find_lines_by_tags(lines[start:end], ["DEAT", "DATE"])[0][1]
-    death_date = death_date_line.split("DATE ")[1]
-    death_place_line = find_lines_by_tags(lines[start:end], ["DEAT", "PLAC"])[0][1]
-    death_place = death_place_line.split("PLAC ")[1].split(",")[0]
+    death_date = None
+    death_date_line = find_lines_by_tags(lines[start:end], ["DEAT", "DATE"])
+    if death_date_line != []:
+        death_date = death_date_line[0][1].split("DATE ")[1]
+    death_place = None
+    death_place_line = find_lines_by_tags(lines[start:end], ["DEAT", "PLAC"])
+    if death_place_line != []:
+        death_place = death_place_line[0][1].split("PLAC ")[1].split(",")[0]
     
     return p_ID, p_g_name, p_surname, birth_date, birth_place, death_date, death_place
 
 def collect_family_info(lines, start=0, end=None):
-    if not end:
-        end = start + 1
-        while lines[end][0] != "0": # find line with next entry
-            end += 1
+    if end == None:
+        end = len(lines) - 1
 
     # get parents
-    father_line = find_lines_by_tags(lines[start:end], ["HUSB"])[0][1]
-    father_ID = int(father_line.split("@")[1][1:])
-    mother_line = find_lines_by_tags(lines[start:end], ["WIFE"])[0][1]
-    mother_ID = int(mother_line.split("@")[1][1:])
+    father_ID = None
+    father_line = find_lines_by_tags(lines[start:end], ["HUSB"])
+    if father_line != []:
+        father_ID = int(father_line[0][1].split("@")[1][1:])
+    mother_ID = None
+    mother_line = find_lines_by_tags(lines[start:end], ["WIFE"])
+    if mother_line != []:
+        mother_ID = int(mother_line[0][1].split("@")[1][1:])
 
     # get children
-    children_lines = find_lines_by_tags(lines[start:end], ["CHIL"])[0][1]
+    children_lines = find_lines_by_tags(lines[start:end], ["CHIL"])
     child_IDs = []
     for child_line in children_lines:
-        c = int(child_line.split("@")[1][1:])
+        c = int(child_line[1].split("@")[1][1:])
         child_IDs.append(c)
 
     # marriage event
-    marr_date_line = find_lines_by_tags(lines[start:end], ["MARR", "DATE"])[0][1]
-    marr_date = marr_date_line.split("DATE ")[1]
-    marr_place_line = find_lines_by_tags(lines[start:end], ["MARR", "PLAC"])[0][1]
-    marr_place = marr_place_line.split("PLAC ")[1].split(",")[0]
+    marr_date = None
+    marr_date_line = find_lines_by_tags(lines[start:end], ["MARR", "DATE"])
+    if marr_date_line != []:
+        marr_date = marr_date_line[0][1].split("DATE ")[1]
+    marr_place = None
+    marr_place_line = find_lines_by_tags(lines[start:end], ["MARR", "PLAC"])
+    if marr_place_line != []:
+        marr_place = marr_place_line[0][1].split("PLAC ")[1].split(",")[0]
 
     return mother_ID, father_ID, child_IDs, marr_date, marr_place
 
@@ -122,14 +137,15 @@ def extract_info(file, blocks):
 
     for start, end in blocks:
         if "@I" in file[start]:
-            p_info = collect_person_info(file[start:end], start, end)
-            persons_list.append(make_person_from_info(p_info))
+            #print(file[start:end])
+            p_info = collect_person_info(file[start:end])
+            persons_list.append(make_person_from_info(*p_info))
         elif "@F" in file[start]:
-            f_info = collect_family_info(file[start:end], start, end)
-            families_list.append(Family(f_info))
+            f_info = collect_family_info(file[start:end])
+            families_list.append(Family(*f_info))
         else:
             pass
-    
+    print(f"extracted {len(persons_list)} persons and {len(families_list)} families")
     return persons_list, families_list #Tuple (list of Person(), list of Family())
 
 def import_file(directory):
@@ -142,8 +158,9 @@ def import_file(directory):
         return
     
     blocks = find_blocks(file)
+    version = get_version(file[blocks[1][0]:blocks[1][1]])
 
-    if get_version(file[blocks[1][0]:blocks[1][1]]) != "5.5.1":
+    if  version != "5.5.1":
         print(f"file does not contain a compatible gedcom version")
         return
     

@@ -15,6 +15,8 @@ class Tree:
     
     def add_person(self, person):
         new_person = person # a Person()
+        if new_person._ID == None:
+            new_person._ID = self.get_next_free_ID()
         if self._ID_count == 0: # first person in the tree
             self.root_ID = new_person._ID
         self._ID_count += 1
@@ -136,7 +138,7 @@ class Tree:
             free_ID = self._ID_count
         return free_ID
 
-    def import_tree_from_file(self, directory):
+    def import_from_file(self, directory):
         persons, families = import_file(directory)
 
         for person in persons:
@@ -147,7 +149,7 @@ class Tree:
         print(f"imported {len(persons)} persons and {len(families)} families")
         return
 
-#--------
+#--------to be done------
     # incomplete function, do not use
     def set_new_ID(self, person, new_ID, force=False): # use with caution: tree performance relies on continuous IDs
         if not self.find_person(person):
@@ -172,7 +174,7 @@ class Tree:
         p1 = self.find_person(person1)
         p2 = self.find_person(person2)
 
-        # swap all relations via set_new_ID
+        # swap all relations via set_new_ID, use a temporary ID
         # to be continued
     
     def remove_person(self, person): # incomplete function, do not use
@@ -221,6 +223,9 @@ class Tree:
                                     if len(o_event.persons) == 1: #and o_event.type == "marriage":#
                                         other.events.pop(o_event) # delete event from other person
         # remove person itself from family tree
-        #replace ID from dictionary self.persons with highest ID person <-- keep ID count continuous and small
-        #replace highest ID with removed ID --> keep the internal ID count as low as possible
-        #lower self._ID_count by 1
+
+    ## tidy_up_IDs:
+    ## fill unused IDs with the highest IDs, to keep IDs in the tree continuous    
+    #replace ID from dictionary self.persons with highest ID person <-- keep ID count continuous and small
+    #replace highest ID with removed ID --> keep the internal ID count as low as possible
+    #lower self._ID_count by 1
