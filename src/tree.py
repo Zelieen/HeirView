@@ -5,7 +5,7 @@ class Tree:
     def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the ID count in the tree.
         self._ID_count = 0 # should equal next free ID
         self.root_ID = None
-        self.persons = {}
+        self.persons = {} # Person() keyed by their ID
 
     def __str__(self):
         return f"A family tree with {str(self._ID_count)} persons in it."
