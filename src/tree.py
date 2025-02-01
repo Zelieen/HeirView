@@ -164,7 +164,8 @@ class Tree:
         p = self.find_person(person)
         # to be continued
     
-    def swap_IDs(self, person1, person2): # incomplete function, do not use
+    # incomplete function, do not use
+    def swap_IDs(self, person1, person2):
         if not self.find_person(person1):
             print(f"person1 #{person1} not found")
             return
@@ -177,7 +178,8 @@ class Tree:
         # swap all relations via set_new_ID, use a temporary ID
         # to be continued
     
-    def remove_person(self, person): # incomplete function, do not use
+    # incomplete function, do not use
+    def remove_person(self, person):
         if not self.find_person(person):
             print(f"no such person with #{person} found")
             return
