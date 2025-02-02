@@ -1,5 +1,6 @@
 from node import Person, Event
 from importer import import_file
+from chart import ChartID
 
 class Tree:
     def __init__(self): # contains all persons in the family tree in a dictionary, the root person's ID and the ID count in the tree.
@@ -148,6 +149,93 @@ class Tree:
         
         print(f"imported {len(persons)} persons and {len(families)} families")
         return
+
+    def find_direct_ancestors(self, person_0):
+        ancestor_list = []
+        ancestor_list.extend(self.find_ancestors_r(person_0, 0))
+        return ancestor_list
+
+    def find_ancestors_r(self, child, child_generation):
+        ancestors = []
+        child_person = self.find_person(child)
+        if child_person == None:
+            return ancestors
+        else:
+            next_gen = child_generation + 1
+            mother = child_person.mother
+            father = child_person.father
+
+            if mother != None:
+                ancestors.append(ChartID(mother, next_gen))
+                ancestors.extend(self.find_ancestors_r(mother, next_gen))
+            if father != None:
+                ancestors.append(ChartID(father, next_gen))
+                ancestors.extend(self.find_ancestors_r(father, next_gen))
+
+        return ancestors
+
+    def find_direct_descendants(self, ancestor):
+        descendant_list = []
+        descendant_list.extend(self.find_descendants_r(ancestor, 0))
+        self.renumber_generations(descendant_list)
+        return descendant_list
+        
+    def find_descendants_r(self, ancestor, ancestor_generation):
+        descendants = []
+        parent_person = self.find_person(ancestor)
+        if parent_person == None:
+            return descendants
+        else:
+            prev_gen = ancestor_generation - 1
+            children_ids = parent_person.children
+            if children_ids != []:
+                for child_id in children_ids:
+                    descendants.append(ChartID(child_id, prev_gen))
+                    descendants.extend(self.find_descendants_r(child_id, prev_gen))
+
+        return descendants
+
+    def renumber_generations(self, chart_id_list):
+        gen_set = set()
+        for chart_id in chart_id_list:
+            gen_set.add(chart_id.gen)
+        
+        lowest_gen = min(list(gen_set))
+        highest_gen = max(list(gen_set))
+        
+        gen_dict = {}
+        
+        for gen in range(lowest_gen, highest_gen + 1):
+            new_gen = gen - lowest_gen
+            gen_dict[gen] = new_gen
+
+        for i in range(len(chart_id_list)):
+            person_id, old_gen = chart_id_list[i].person_ID, chart_id_list[i].gen
+            chart_id_list[i] = ChartID(person_id, gen_dict[old_gen])
+        
+        return chart_id_list # has been 're-generationed' in place to start at generation 0 until max generation
+
+    def get_ancestors_for_chart(self, start_person, bounces=0):
+        persons_chart_list = self.find_direct_ancestors(start_person)
+
+
+        if bounce > 0:
+            # make a list of persons, who did not YET have their children / ancestors checked
+            #not yet done: remove double ancestors, if they appear on different generations: keep oldest generation
+            person_list = persons_chart_list
+            for bounce in range(bounces):
+                if bounce % 2 != 0: # uneven bounce #
+                    for person, gen in person_list:
+                        person_list.remove(ChartID(person, gen)) # 'gen' does not get compared though
+                        persons_chart_list.extend(self.find_descendants_r(person, gen))
+                else: # even bounce #
+                    for person, gen in person_list:
+                        person_list.remove(ChartID(person, gen)) # 'gen' does not get compared though
+                        persons_chart_list.extend(self.find_ancestors_r(person, gen))
+        self.renumber_generations(persons_chart_list)
+        return persons_chart_list
+
+
 
 #--------to be done------
     # incomplete function, do not use

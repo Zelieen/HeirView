@@ -1,9 +1,23 @@
 from unit import *
 
+class ChartID:
+    def __init__(self, person_ID, generation):
+        self.person_ID = person_ID
+        self.gen = generation
+    
+    def __str__(self):
+        return f"A ChartID of person # {str(self.person_ID)} at generation {str(self.gen)}."
+    
+    def __repr__(self):
+        return f"ChartID({self.person_ID}, {self.gen})"
+    
+    def __eq__(self, other):
+        return self.person_ID == other.person_ID
+
 class Chart:
     def __init__(self):
         self.badge_col = [] #a list of lists: generation columns of badges
-        self.connect_col = [] #a list of lists: connectors between badge columns
+        self.connect_col = [] #a list of lists: columns of connectors between badge columns
         self.pos_x = 0
         self.pos_y = 0
 
@@ -19,6 +33,17 @@ class Chart:
         for person, generation in list_person_generation:
             self.add_person(person, generation)
 
+    def sort_ranks(self):
+        '''
+        sort the badges for 'optimal' order that minimises sibling distance (and then partner distance)
+        '''
+        pass
+
+    def fill_badges(self):
+        '''
+        fill the badges with the info from the persons they represent
+        '''
+        pass
 
 # --- all about badges ---
     def make_badge(self, person_ID):
