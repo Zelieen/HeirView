@@ -64,17 +64,17 @@ class Chart:
 
     def search_badge_place_by_ID(self, ID):
         for c in range(len(self.badge_col)):
-            for r in range(len(c)):
+            for r in range(len(self.badge_col[c])):
                 if self.badge_col[c][r].person_ID == ID:
                     return c, r
-        print("ID not found in chart")
+        #print("ID not found in chart")
         return False
     
     def find_badge_by_ID(self, ID):
         badge = Badge(None)
         place = self.search_badge_place_by_ID(ID)
         if place != False:
-            badge = self.get_badge(*place)
+            badge = self.get_badge_by_place(*place)
         return badge
     
     def get_badge_by_place(self, gen, rank):
@@ -87,12 +87,12 @@ class Chart:
         new_connector.to_right.extend([mother_ID, father_ID])
         return new_connector
     
-    def add_connector(self, child_ID, mother_ID, father_ID):
+    def add_connection(self, child_ID, mother_ID, father_ID):
         if not self.search_badge_place_by_ID(child_ID):
             return
         child_gen = self.search_badge_place_by_ID(child_ID)[0]
         connector_index = self.search_connector_index(mother_ID, father_ID, child_gen)
-        if connector_index == False:
+        if type(connector_index) == type(False):
             connector = self.make_connector(child_ID, mother_ID, father_ID)
             self.add_new_connector(connector, child_gen)
         else:
@@ -109,7 +109,7 @@ class Chart:
             self.connect_col[-1].append(connector)
 
     def add_to_connector_at(self, child_gen, index, child_ID):
-        self.connect_col[child_gen][index].to_right.append(child_ID)
+        self.connect_col[child_gen][index].to_left.append(child_ID)
     
     def search_connector_index(self, mother_ID, father_ID, child_gen):
         found_index = False
