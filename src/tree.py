@@ -192,7 +192,6 @@ class Tree:
                 for child_id in children_ids:
                     descendants.append(ChartID(child_id, prev_gen))
                     descendants.extend(self.find_descendants_r(child_id, prev_gen))
-
         return descendants
 
     def renumber_generations(self, chart_id_list):
@@ -216,28 +215,57 @@ class Tree:
         return chart_id_list # has been 're-generationed' in place to start at generation 0 until max generation
 
     def get_ancestors_for_chart(self, start_person, bounces=0):
-        persons_chart_list = self.find_direct_ancestors(start_person)
+        persons_chart_list = [ChartID(start_person, 0)]
+        persons_chart_list.extend(self.find_direct_ancestors(start_person))
 
-
-        if bounce > 0:
+        if bounces > 0:
             # make a list of persons, who did not YET have their children / ancestors checked
             #not yet done: remove double ancestors, if they appear on different generations: keep oldest generation
-            person_list = persons_chart_list
-            for bounce in range(bounces):
+            person_list = persons_chart_list.copy()
+            new_persons = []
+            for bounce in range(1, bounces + 1):
                 if bounce % 2 != 0: # uneven bounce #
-                    for person, gen in person_list:
-                        person_list.remove(ChartID(person, gen)) # 'gen' does not get compared though
-                        persons_chart_list.extend(self.find_descendants_r(person, gen))
+                    #print(f"bouncing down from {person_list}")
+                    for chartID in person_list:
+                        found_persons = self.find_descendants_r(chartID.person_ID, chartID.gen)
+                        new_persons.extend(self.add_to_chart_list(persons_chart_list, found_persons))
+                    person_list = new_persons
+                    #print(f"new descendants: {new_persons}")
+                    new_persons = []
                 else: # even bounce #
-                    for person, gen in person_list:
-                        person_list.remove(ChartID(person, gen)) # 'gen' does not get compared though
-                        persons_chart_list.extend(self.find_ancestors_r(person, gen))
+                    #print(f"bouncing up from {person_list}")
+                    for chartID in person_list:
+                        found_persons = self.find_ancestors_r(chartID.person_ID, chartID.gen)
+                        new_persons.extend(self.add_to_chart_list(persons_chart_list, found_persons))
+                    person_list = new_persons
+                    #print(f"new ancestors: {new_persons}")
+                    new_persons = []
         self.renumber_generations(persons_chart_list)
+        print(f"found {len(persons_chart_list)} persons for the chart")
         return persons_chart_list
+    
+    def add_to_chart_list(self, chart_list, to_add):
+        '''
+        if there is a duplicate, only keep the highest generation
+        '''
+        new_persons = []
+        for chartID in to_add:
+            found = False
+            for i in range(len(chart_list)):
+                if chartID == chart_list[i]:
+                    max_gen = max(chart_list[i].gen, chartID.gen)
+                    chart_list[i] = ChartID(chart_list[i].person_ID, max_gen)
+                    found = True
+                    break
+            
+            if found == False:
+                chart_list.append(chartID)
+                new_persons.append(chartID)
+        return new_persons
 
 
 
-#--------to be done------
+#--------to be done------not necessarily in scope for just reading in gedcom files
     # incomplete function, do not use
     def set_new_ID(self, person, new_ID, force=False): # use with caution: tree performance relies on continuous IDs
         if not self.find_person(person):
