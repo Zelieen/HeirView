@@ -220,26 +220,21 @@ class Tree:
 
         if bounces > 0:
             # make a list of persons, who did not YET have their children / ancestors checked
-            #not yet done: remove double ancestors, if they appear on different generations: keep oldest generation
             person_list = persons_chart_list.copy()
             new_persons = []
             for bounce in range(1, bounces + 1):
-                if bounce % 2 != 0: # uneven bounce #
-                    #print(f"bouncing down from {person_list}")
-                    for chartID in person_list:
+                if person_list == []: #return right away, no need to bounce any further
+                    self.renumber_generations(persons_chart_list)
+                    print(f"found {len(persons_chart_list)} persons for the chart after only {bounce - 1} bounces")
+                    return persons_chart_list          
+                for chartID in person_list:
+                    if bounce % 2 != 0: # uneven bounce #
                         found_persons = self.find_descendants_r(chartID.person_ID, chartID.gen)
-                        new_persons.extend(self.add_to_chart_list(persons_chart_list, found_persons))
-                    person_list = new_persons
-                    #print(f"new descendants: {new_persons}")
-                    new_persons = []
-                else: # even bounce #
-                    #print(f"bouncing up from {person_list}")
-                    for chartID in person_list:
+                    else: # even bounce #
                         found_persons = self.find_ancestors_r(chartID.person_ID, chartID.gen)
-                        new_persons.extend(self.add_to_chart_list(persons_chart_list, found_persons))
-                    person_list = new_persons
-                    #print(f"new ancestors: {new_persons}")
-                    new_persons = []
+                    new_persons.extend(self.add_to_chart_list(persons_chart_list, found_persons)) #adds new persons to chart_list and also returns new persons
+                person_list = new_persons
+                new_persons = []
         self.renumber_generations(persons_chart_list)
         print(f"found {len(persons_chart_list)} persons for the chart")
         return persons_chart_list
@@ -262,6 +257,19 @@ class Tree:
                 chart_list.append(chartID)
                 new_persons.append(chartID)
         return new_persons
+    
+    def get_connections_for_chart(self, list_chartIDs):
+        connection_list = []
+        for chartID in list_chartIDs:
+            # find ID as child
+            child = self.find_person(chartID.person_ID)
+            if child != None:
+            # get mother and father ID
+                mother_ID = child.mother
+                father_ID = child.father
+                connection_list.append((child._ID, mother_ID, father_ID))
+        print(f"found {len(connection_list)} connections for the chart")
+        return connection_list # list_childID_motherID_fatherID of tuples
 
 
 

@@ -145,7 +145,7 @@ def extract_info(file, blocks):
             families_list.append(Family(*f_info))
         else:
             pass
-    print(f"extracted {len(persons_list)} persons and {len(families_list)} families")
+    #print(f"extracted {len(persons_list)} persons and {len(families_list)} families")
     return persons_list, families_list #Tuple (list of Person(), list of Family())
 
 def import_file(directory):
@@ -158,7 +158,7 @@ def import_file(directory):
         return
     
     blocks = find_blocks(file)
-    version = get_version(file[blocks[1][0]:blocks[1][1]])
+    version = get_version(file[blocks[0][0]:blocks[0][1]])
 
     if  version != "5.5.1":
         print(f"file does not contain a compatible gedcom version")

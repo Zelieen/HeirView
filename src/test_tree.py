@@ -97,6 +97,9 @@ class TestNode(unittest.TestCase):
         t.add_father(10, 9)
         t.add_mother(10, 8)
         self.assertEqual([ChartID(4, 1), ChartID(0, 2), ChartID(6, 2), ChartID(8, 1), ChartID(10, 0), ChartID(9, 1)], t.get_ancestors_for_chart(4, 2))
+    def test_tree_get_ancestors_for_chart_bounce_many(self):
+        #use test Tree() tt
+        self.assertEqual([ChartID(4, 1), ChartID(0, 2), ChartID(6, 2), ChartID(8, 1), ChartID(10, 0), ChartID(9, 1)], tt.get_ancestors_for_chart(4, 7))
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,6 +13,9 @@ class ChartID:
     
     def __eq__(self, other):
         return self.person_ID == other.person_ID
+    
+    def get_person_generation(self):
+        return self.person_ID, self.gen
 
 class Chart:
     def __init__(self):
@@ -21,25 +24,52 @@ class Chart:
         self.pos_x = 0
         self.pos_y = 0
 
+    def __str__(self):
+        return f"A Chart with {str(self.get_number_of_persons())} persons in {str(len(self.badge_col))} generations and {str(self.get_number_of_connectors())} families."
+    
+    def __repr__(self):
+        return f"Chart()"
+
+    def get_number_of_persons(self):
+        num = 0
+        for col in self.badge_col:
+            num += len(col)
+        return num
+    
+    def get_number_of_connectors(self):
+        num = 0
+        for col in self.connect_col:
+            num += len(col)
+        return num
+
     def inverse_generations(self):
         self.badge_col.reverse()
         self.connect_col.reverse()
 
     def add_person(self, person, generation):
-        badge = self.make_badge(person._ID)
+        badge = self.make_badge(person)
         self.add_badge(badge, generation)
 
-    def add_persons(self, list_person_generation):
-        for person, generation in list_person_generation:
+    def add_persons(self, list_chartIDs):
+        for chartID in list_chartIDs:
+            person, generation = chartID.get_person_generation()
             self.add_person(person, generation)
 
     def sort_ranks(self):
         '''
         sort the badges for 'optimal' order that minimises sibling distance (and then partner distance)
+        by person 0?:
+            find person 0's connector
+            go recursive up generations, mother above, father below mother
+
+        by connectors?: 
+            start with highest generation, sort mothers up
+            sort parents/partner (.to_right) together by switching their ranks in their siblings (higher up generation connector)
+            give children/siblings (.to_left) together ranks
         '''
         pass
 
-    def fill_badges(self):
+    def fill_badges(self, tree):
         '''
         fill the badges with the info from the persons they represent
         '''
@@ -80,7 +110,12 @@ class Chart:
     def get_badge_by_place(self, gen, rank):
         return self.badge_col[gen][rank]
     
-# --- all about connectors ---    
+# --- all about connectors ---  
+    def add_connections(self, list_child_mother_father):
+        for childID, motherID, fatherID in list_child_mother_father:
+            self.add_connection(childID, motherID, fatherID)
+        print(f"added {len(list_child_mother_father)} connections to the chart")
+
     def make_connector(self, child_ID, mother_ID, father_ID):
         new_connector = Connector()
         new_connector.to_left.append(child_ID)
@@ -88,6 +123,8 @@ class Chart:
         return new_connector
     
     def add_connection(self, child_ID, mother_ID, father_ID):
+        if mother_ID == None and father_ID == None:
+            return
         if not self.search_badge_place_by_ID(child_ID):
             return
         child_gen = self.search_badge_place_by_ID(child_ID)[0]
