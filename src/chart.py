@@ -46,14 +46,14 @@ class Chart:
         self.badge_col.reverse()
         self.connect_col.reverse()
 
-    def add_person(self, person, generation):
-        badge = self.make_badge(person)
+    def add_person(self, ID, generation):
+        badge = self.make_badge(ID)
         self.add_badge(badge, generation)
 
     def add_persons(self, list_chartIDs):
         for chartID in list_chartIDs:
-            person, generation = chartID.get_person_generation()
-            self.add_person(person, generation)
+            person_ID, generation = chartID.get_person_generation()
+            self.add_person(person_ID, generation)
 
     def sort_ranks(self):
         '''

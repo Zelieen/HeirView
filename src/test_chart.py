@@ -38,26 +38,26 @@ class TestNode(unittest.TestCase):
         self.assertEqual(9, c.badge_col[0][0].person_ID)
     def test_Chart_add_person(self):
         c = Chart()
-        c.add_person(Person(0), 5)
+        c.add_person(0, 5)
         self.assertEqual(1, len(c.badge_col))
     def test_Chart_add_persons(self):
         c = Chart()
-        c.add_persons([(Person(0), 5)])
+        c.add_persons([ChartID(0, 5)])
         self.assertEqual(1, len(c.badge_col))
     def test_Chart_search_badge_ID_None(self):
         c = Chart()
         self.assertEqual(False, c.search_badge_place_by_ID(None))
     def test_Chart_search_badge_ID(self):
         c = Chart()
-        c.add_person(Person(0), 5)
+        c.add_person(0, 5)
         self.assertEqual((0, 0), c.search_badge_place_by_ID(0))
     def test_Chart_get_badge_by_place(self):
         c = Chart()
-        c.add_person(Person(4), 5)
+        c.add_person(4, 5)
         self.assertEqual(4, c.get_badge_by_place(0, 0).person_ID)
     def test_Chart_find_badge_ID(self):
         c = Chart()
-        c.add_person(Person(8), 5)
+        c.add_person(8, 5)
         self.assertEqual(8, c.find_badge_by_ID(8).person_ID)
     def test_Chart_make_connector(self):
         c = Chart()
@@ -71,13 +71,13 @@ class TestNode(unittest.TestCase):
         self.assertEqual(0, len(c.connect_col))
     def test_Chart_add_to_connector_at(self):
         c = Chart()
-        c.add_persons([(Person(0), 0), (Person(1), 1), (Person(2), 1), (Person(3), 0)])
+        c.add_persons([ChartID(0, 0), ChartID(1, 1), ChartID(2, 1), ChartID(3, 0)])
         c.add_connection(0, 1, 2)
         c.add_connection(3, 1, 2)
         self.assertEqual([0, 3], c.connect_col[0][0].to_left)
     def test_Chart_add_connection(self):
         c = Chart()
-        c.add_persons([(Person(0), 0), (Person(1), 1), (Person(2), 1)])
+        c.add_persons([ChartID(0, 0), ChartID(1, 1), ChartID(2, 1)])
         c.add_connection(0, 1, 2)
         self.assertEqual(1, len(c.connect_col[0]))
 
