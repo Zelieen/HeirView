@@ -13,12 +13,10 @@ class TestNode(unittest.TestCase):
         self.assertEqual(f"This is Person #-5: {UNKNOWN_NAME} {UNKNOWN_SURNAME}.", str(p))
 
     def test_creation_event(self):
-        p = Person(0)
         e = Event("Birth")
         self.assertEqual("This is an Event: birth happened  at .", str(e))
 
     def test_creation_event_full(self):
-        p = Person(None)
         e = Event("Death", [], "18 JAN 2025", "Where?!")
         self.assertEqual(
             "This is an Event: death happened 18 JAN 2025 at Where?!.", str(e)
