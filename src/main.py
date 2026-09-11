@@ -38,4 +38,5 @@ def main():
 
     sl.wait_for_close()
 
-main()
+if __name__ == "__main__":
+    main()

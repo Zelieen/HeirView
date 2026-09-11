@@ -1,0 +1,7 @@
+[project]
+name = "heirview"
+version = "0.1.0"
+description = "Plots a family tree from .gedcom"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
