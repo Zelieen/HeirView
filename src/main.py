@@ -7,7 +7,7 @@ def main():
     print("starting HeirView")
 
     t = Tree()
-    t.import_from_file("./HeirView_test_export.ged")
+    t.fill_from_file("./HeirView_test_export.ged")
     print(t)
 
     persons = t.get_ancestors_for_chart(1, 1)

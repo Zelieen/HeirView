@@ -25,7 +25,7 @@ class Person:
         self.mother: int | None = None  # family tree ID
 
         self.children: list[int] = []  # list of family tree IDs
-        self.partnerslist: list[int] = []  # list of family tree IDs
+        self.partners: list[int] = []  # list of family tree IDs
 
         if self.given_name == "" and self.surname == "":
             self.given_name = UNKNOWN_NAME

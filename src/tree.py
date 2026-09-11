@@ -1,15 +1,21 @@
-from node import Person, Event
+from node import Person, Event, Family
 from importer import import_file
-from chart import ChartID
+from chart import ChartID, renumber_generations, new_on_chart_list
 
 
 class Tree:
+    """
+    Holds a family tree with all persons and their relations.
+    
+    There is also the root person's ID and the ID count in the tree.
+    """
+
     def __init__(
         self,
-    ):  # contains all persons in the family tree in a dictionary, the root person's ID and the ID count in the tree.
-        self._ID_count = 0  # should equal next free ID
-        self.root_ID = None
-        self.persons = {}  # Person() keyed by their ID
+    ):
+        self._ID_count: int = 0  # should equal next free ID
+        self.root_ID: int | None = None
+        self.persons: dict[int, Person] = {}  # Person() keyed by their ID
 
     def __str__(self):
         return f"A family tree with {str(self._ID_count)} persons in it."
@@ -17,30 +23,35 @@ class Tree:
     def __repr__(self):
         return f"Tree()"
 
-    def add_person(self, person):
-        new_person = person  # a Person()
-        if new_person._ID == None:
-            new_person._ID = self.get_next_free_ID()
+    def add_person(self, given_name: str = "", surname: str = "", ID: int | None = None) -> Person:
+        """Adds a person to the tree."""
+        # check ID:
+        if ID in self.persons:
+            print("ID is already in use for:")
+            return self.persons[ID]
+        if ID == None:
+            ID = self.get_next_free_ID()
+
+        # add person to tree's dictionary
+        new_person = Person(ID, given_name, surname)
+        self.persons[ID] = new_person
+
+        # check own ID count
         if self._ID_count == 0:  # first person in the tree
             self.root_ID = new_person._ID
         self._ID_count += 1
-        if new_person._ID in self.persons:
-            print("ID is already in use")
-            # maybe add information to existing person later
-            return
-        self.persons[new_person._ID] = new_person  # add person to tree's dictionary
-        return self.persons[new_person._ID]
 
-    def find_person(self, ID):
-        found = None
-        if ID in self.persons:
-            found = self.persons[ID]
-        return found
+        return self.persons[ID]
 
-    def add_child(self, person, child=-1, as_mother=True):
-        the_person = self.find_person(person)
+    def find_person(self, ID: int | None) -> Person | None:
+        """Returns a person from the tree."""
+        return self.persons[ID] if ID in self.persons else None
+
+    def add_child(self, parent: int, child: int, as_mother: bool = True) -> None:
+        """Adds a parent-child relation by IDs."""
+        the_person = self.find_person(parent)
         if not the_person:
-            print(f"person #{person} not found")
+            print(f"person #{parent} not found")
             return
         the_child = self.find_person(child)
         if not the_child:
@@ -53,35 +64,28 @@ class Tree:
         else:
             the_child.father = the_person._ID
 
-    def add_parent(self, child, parent=-1, as_mother=True):
-        the_child = self.find_person(child)
-        if not the_child:
-            print(f"person #{child} not found")
-            return
-        the_parent = self.find_person(parent)
-        if not the_parent:
-            print(f"person's parent #{parent} not found")
-            return
-            # the_parent = self.add_person(parent) # adding a new person needs a name preferably.
-        the_parent.children.append(the_child._ID)
-        if as_mother:
-            the_child.mother = the_parent._ID
-        else:
-            the_child.father = the_parent._ID
+    def add_parent(self, child: int, parent: int, as_mother: bool = True) -> None:
+        """Adds a parent-child relation by IDs."""
+        self.add_child(parent, child, as_mother)
 
-    def add_father(self, child, father=-1):
+    def add_father(self, child: int, father: int) -> None:
+        """Wraps add_parent()."""
         self.add_parent(child, father, as_mother=False)
 
-    def add_mother(self, child, mother=-1):
+    def add_mother(self, child: int, mother: int) -> None:
+        """Wraps add_parent()."""
         self.add_parent(child, mother, as_mother=True)
 
-    def add_his_child(self, person, child=-1):
-        self.add_child(person, child, as_mother=False)
+    def add_his_child(self, parent: int, child: int) -> None:
+        """Wraps add_child()."""
+        self.add_child(parent, child, as_mother=False)
 
-    def add_her_child(self, person, child=-1):
-        self.add_child(person, child, as_mother=True)
+    def add_her_child(self, parent: int, child: int) -> None:
+        """Wraps add_child()."""
+        self.add_child(parent, child, as_mother=True)
 
-    def add_partnership(self, person1, person2):
+    def add_partnership(self, person1: int, person2: int) -> None:
+        """Adds a partner relationship by ID."""
         p1 = self.find_person(person1)
         p2 = self.find_person(person2)
         if not p1:
@@ -94,17 +98,19 @@ class Tree:
         p1.partners.append(p2._ID)
         p2.partners.append(p1._ID)
 
-    def add_event_to_person(self, person, event):
+    def add_event_to_person(self, person: int, event: Event):
+        """Adds an event to that person by ID."""
         p = self.find_person(person)
         if not p:
             print(f"person #{person} not found")
             return
-        if not type(event) == type(Event("test", [])):
+        if not isinstance(event, Event):
             print(f"That was not a proper Event()")
             return
         p.events.append(event)
 
-    def add_family(self, family):
+    def add_family(self, family: Family) -> None:
+        """Adds all relations from a family to the persons in the tree."""
         if family.mother and family.father:
             self.add_partnership(family.mother, family.father)
             if family.marr:
@@ -117,7 +123,8 @@ class Tree:
                 if family.father:
                     self.add_father(child, family.father)
 
-    def get_all_free_IDs(self):
+    def get_all_free_IDs(self) -> list[int]:
+        """Returns free IDs between lowest and highest ID in the tree."""
         index_list = sorted(list(self.persons.keys()))
         free_IDs = []
         x = 0  # keep track of position in index_list
@@ -128,7 +135,8 @@ class Tree:
                 x += 1
         return free_IDs
 
-    def get_next_free_ID(self):
+    def get_next_free_ID(self) -> int:
+        """Returns a free ID or the next highest ID."""
         free_ID = None
         index_list = sorted(list(self.persons.keys()))
         for i in range(len(index_list)):
@@ -136,11 +144,10 @@ class Tree:
                 free_ID = i
                 break
 
-        if not free_ID:
-            free_ID = self._ID_count
-        return free_ID
+        return free_ID if free_ID else self._ID_count
 
-    def import_from_file(self, directory):
+    def fill_from_file(self, directory) -> None:
+        """Creates persons and relations from a .gedcom file."""
         file_tuple = import_file(directory)
         if not file_tuple:
             print(f"Could not import from file: {directory}")
@@ -153,39 +160,41 @@ class Tree:
             self.add_family(family)
 
         print(f"imported {len(persons)} persons and {len(families)} families")
-        return
 
-    def find_direct_ancestors(self, person_0):
-        ancestor_list = []
-        ancestor_list.extend(self.find_ancestors_r(person_0, 0))
-        return ancestor_list
+    def find_all_direct_ancestors(self, person_0: int) -> list[ChartID]:
+        """Grabs all linked ancestors by ID."""
+        ancestors = []
+        ancestors.extend(self._find_ancestors_r(person_0, 0))
+        return ancestors
 
-    def find_ancestors_r(self, child, child_generation):
+    def _find_ancestors_r(self, child: int, child_generation: int) -> list[ChartID]:
+        """Grabs ancestors recursively."""
         ancestors = []
         child_person = self.find_person(child)
-        if child_person == None:
+        if not child_person:
             return ancestors
         else:
             next_gen = child_generation + 1
             mother = child_person.mother
             father = child_person.father
 
-            if mother != None:
+            if mother:
                 ancestors.append(ChartID(mother, next_gen))
-                ancestors.extend(self.find_ancestors_r(mother, next_gen))
-            if father != None:
+                ancestors.extend(self._find_ancestors_r(mother, next_gen))
+            if father:
                 ancestors.append(ChartID(father, next_gen))
-                ancestors.extend(self.find_ancestors_r(father, next_gen))
+                ancestors.extend(self._find_ancestors_r(father, next_gen))
 
         return ancestors
 
-    def find_direct_descendants(self, ancestor):
-        descendant_list = []
-        descendant_list.extend(self.find_descendants_r(ancestor, 0))
-        self.renumber_generations(descendant_list)
-        return descendant_list
+    def find_all_direct_descendants(self, ancestor: int) -> list[ChartID]:
+        """Grabs all linked descendants by ID."""
+        descendants = []
+        descendants.extend(self._find_descendants_r(ancestor, 0))
+        return descendants
 
-    def find_descendants_r(self, ancestor, ancestor_generation):
+    def _find_descendants_r(self, ancestor: int, ancestor_generation: int) -> list[ChartID]:
+        """Grabs descendants recursively."""
         descendants = []
         parent_person = self.find_person(ancestor)
         if parent_person == None:
@@ -193,35 +202,28 @@ class Tree:
         else:
             prev_gen = ancestor_generation - 1
             children_ids = parent_person.children
-            if children_ids != []:
+            if children_ids:
                 for child_id in children_ids:
                     descendants.append(ChartID(child_id, prev_gen))
-                    descendants.extend(self.find_descendants_r(child_id, prev_gen))
+                    descendants.extend(self._find_descendants_r(child_id, prev_gen))
         return descendants
 
-    def renumber_generations(self, chart_id_list):
-        gen_set = set()
-        for chart_id in chart_id_list:
-            gen_set.add(chart_id.gen)
+    def get_ancestors_for_chart(self, start_person: int = -1, bounces: int = 0) -> list[ChartID]:
+        """
+        Gets all the ancestors by ID and their generation.
 
-        lowest_gen = min(list(gen_set))
-        highest_gen = max(list(gen_set))
-
-        gen_dict = {}
-
-        for gen in range(lowest_gen, highest_gen + 1):
-            new_gen = gen - lowest_gen
-            gen_dict[gen] = new_gen
-
-        for i in range(len(chart_id_list)):
-            person_id, old_gen = chart_id_list[i].person_ID, chart_id_list[i].gen
-            chart_id_list[i] = ChartID(person_id, gen_dict[old_gen])
-
-        return chart_id_list  # has been 're-generationed' in place to start at generation 0 until max generation
-
-    def get_ancestors_for_chart(self, start_person, bounces=0):
+        Bounces decide how distantly related persons are included:
+        0 bounces include only parents and direct ancestors
+        1 bounce adds all ancestor's descendants: siblings
+        2 bounces include also in-laws and their direct ancestors
+        """
+        if start_person < 0 and self.root_ID != None:
+            start_person = self.root_ID
+        if start_person not in self.persons:
+            return []
+        
         persons_chart_list = [ChartID(start_person, 0)]
-        persons_chart_list.extend(self.find_direct_ancestors(start_person))
+        persons_chart_list.extend(self.find_all_direct_ancestors(start_person))
 
         if bounces > 0:
             # make a list of persons, who did not YET have their children / ancestors checked
@@ -231,49 +233,31 @@ class Tree:
                 if (
                     person_list == []
                 ):  # return right away, no need to bounce any further
-                    self.renumber_generations(persons_chart_list)
+                    renumber_generations(persons_chart_list)
                     print(
                         f"found {len(persons_chart_list)} persons for the chart after only {bounce - 1} bounces"
                     )
                     return persons_chart_list
                 for chartID in person_list:
                     if bounce % 2 != 0:  # uneven bounce #
-                        found_persons = self.find_descendants_r(
+                        found_persons = self._find_descendants_r(
                             chartID.person_ID, chartID.gen
                         )
                     else:  # even bounce #
-                        found_persons = self.find_ancestors_r(
+                        found_persons = self._find_ancestors_r(
                             chartID.person_ID, chartID.gen
                         )
                     new_persons.extend(
-                        self.add_to_chart_list(persons_chart_list, found_persons)
+                        new_on_chart_list(persons_chart_list, found_persons)
                     )  # adds new persons to chart_list and also returns new persons
                 person_list = new_persons
                 new_persons = []
-        self.renumber_generations(persons_chart_list)
+        renumber_generations(persons_chart_list)
         print(f"found {len(persons_chart_list)} persons for the chart")
         return persons_chart_list
 
-    def add_to_chart_list(self, chart_list, to_add):
-        """
-        if there is a duplicate, only keep the highest generation
-        """
-        new_persons = []
-        for chartID in to_add:
-            found = False
-            for i in range(len(chart_list)):
-                if chartID == chart_list[i]:
-                    max_gen = max(chart_list[i].gen, chartID.gen)
-                    chart_list[i] = ChartID(chart_list[i].person_ID, max_gen)
-                    found = True
-                    break
-
-            if found == False:
-                chart_list.append(chartID)
-                new_persons.append(chartID)
-        return new_persons
-
-    def get_connections_for_chart(self, list_chartIDs):
+    def get_connections_for_chart(self, list_chartIDs: list[ChartID]) -> list[tuple[int, int | None, int | None]]:
+        """Builds connected persons list."""
         connection_list = []
         for chartID in list_chartIDs:
             # find ID as child
@@ -356,7 +340,7 @@ class Tree:
             for partner in to_remove.partners:
                 loner = self.find_person(partner)
                 if loner:
-                    loner.partners.pop(to_remove)
+                    loner.partners.pop(to_remove._ID)
 
         # part were person needs to be removed from shared events.
         if len(to_remove.events) > 0:
@@ -366,16 +350,16 @@ class Tree:
                     for person in event.persons:
                         other = self.find_person(person)
                         if other and other != to_remove:  # on other person
-                            for o_event in other.events:  # find event
+                            for index, o_event in enumerate(other.events):  # find event
                                 if o_event.type == event.type:
                                     o_event.persons.pop(
-                                        to_remove
+                                        to_remove._ID
                                     )  # remove to_remove from other person's event
                                     if (
                                         len(o_event.persons) == 1
                                     ):  # and o_event.type == "marriage":#
                                         other.events.pop(
-                                            o_event
+                                            index
                                         )  # delete event from other person
         # remove person itself from family tree
 

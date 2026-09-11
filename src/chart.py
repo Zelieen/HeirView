@@ -2,12 +2,13 @@ from unit import *
 
 
 class ChartID:
-    def __init__(self, person_ID, generation):
+    """Tree ID with generation number."""
+    def __init__(self, person_ID: int, generation: int):
         self.person_ID = person_ID
         self.gen = generation
 
     def __str__(self):
-        return f"A ChartID of person # {str(self.person_ID)} at generation {str(self.gen)}."
+        return f"A ChartID of person #{str(self.person_ID)} at generation {str(self.gen)}."
 
     def __repr__(self):
         return f"ChartID({self.person_ID}, {self.gen})"
@@ -18,6 +19,35 @@ class ChartID:
     def get_person_generation(self):
         return self.person_ID, self.gen
 
+def renumber_generations(chart_ids: list[ChartID]) -> list[ChartID]:
+    """Normalises generation numbers into range 0-positive."""
+    gens = set([chart_id.gen for chart_id in chart_ids])
+    lowest_gen = min(gens)
+
+    # change in-place
+    for i in range(len(chart_ids)):
+        chart_ids[i].gen -= lowest_gen
+
+    return chart_ids
+
+def new_on_chart_list(chart_list, to_add):
+        """
+        if there is a duplicate, only keep the highest generation
+        """
+        new_persons = []
+        for chartID in to_add:
+            found = False
+            for i in range(len(chart_list)):
+                if chartID == chart_list[i]:
+                    max_gen = max(chart_list[i].gen, chartID.gen)
+                    chart_list[i].gen = max_gen
+                    found = True
+                    break
+
+            if not found:
+                chart_list.append(chartID)
+                new_persons.append(chartID)
+        return new_persons
 
 class Chart:
     def __init__(self):
