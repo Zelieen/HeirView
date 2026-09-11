@@ -55,12 +55,12 @@ class TestNode(unittest.TestCase):
 
     def test_Chart_search_badge_ID_None(self):
         c = Chart()
-        self.assertEqual(False, c.search_badge_place_by_ID(None))
+        self.assertEqual((0, 0, False), c.search_badge_place_by_ID(None))
 
     def test_Chart_search_badge_ID(self):
         c = Chart()
         c.add_person(0, 5)
-        self.assertEqual((0, 0), c.search_badge_place_by_ID(0))
+        self.assertEqual((0, 0, True), c.search_badge_place_by_ID(0))
 
     def test_Chart_get_badge_by_place(self):
         c = Chart()

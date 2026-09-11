@@ -178,10 +178,10 @@ class Tree:
             mother = child_person.mother
             father = child_person.father
 
-            if mother:
+            if mother != None:
                 ancestors.append(ChartID(mother, next_gen))
                 ancestors.extend(self._find_ancestors_r(mother, next_gen))
-            if father:
+            if father != None:
                 ancestors.append(ChartID(father, next_gen))
                 ancestors.extend(self._find_ancestors_r(father, next_gen))
 

@@ -1,32 +1,32 @@
 import unittest
 
-from node import Person, Event
+from node import Person, Event, UNKNOWN_NAME, UNKNOWN_SURNAME
 
 
 class TestNode(unittest.TestCase):
     def test_creation_person(self):
-        p = Person(None, "Luke", "Skywalker")
-        self.assertEqual("This is Person #None: Luke SKYWALKER.", str(p))
+        p = Person(12, "Luke", "Skywalker")
+        self.assertEqual("This is Person #12: Luke SKYWALKER.", str(p))
 
-    def test_creation_person_None(self):
-        p = Person(None)
-        self.assertEqual("This is Person #None: name UNKNOWN.", str(p))
+    def test_creation_person_unknown(self):
+        p = Person(-5)
+        self.assertEqual(f"This is Person #-5: {UNKNOWN_NAME} {UNKNOWN_SURNAME}.", str(p))
 
     def test_creation_event(self):
-        p = Person(None)
-        e = Event("Birth", p)
-        self.assertEqual("This is an Event: birth happened None at None.", str(e))
+        p = Person(0)
+        e = Event("Birth")
+        self.assertEqual("This is an Event: birth happened  at .", str(e))
 
     def test_creation_event_full(self):
         p = Person(None)
-        e = Event("Death", p, "18 JAN 2025", "Where?!")
+        e = Event("Death", [], "18 JAN 2025", "Where?!")
         self.assertEqual(
             "This is an Event: death happened 18 JAN 2025 at Where?!.", str(e)
         )
 
     def test_person_event(self):
         p = Person(3)
-        p.add_event("death", None, "18 JAN 2025", "Where?!")
+        p.add_event("death", [], "18 JAN 2025", "Where?!")
         self.assertEqual(
             "This is an Event: death happened 18 JAN 2025 at Where?!.", str(p.death)
         )
