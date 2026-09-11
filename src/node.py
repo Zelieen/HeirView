@@ -1,5 +1,5 @@
 class Person:
-    def __init__(self, ID=None, given_name=None, surname=None):
+    def __init__(self, ID: int =None, given_name: str =None, surname: str =None):
         self._ID = ID #the ID in the family tree
         self.given_name = ""
         self.surname = ""
