@@ -31,9 +31,11 @@ class TestNode(unittest.TestCase):
         t.add_person("Anakin", "Skywalker", 0)
         t.add_person("Luke", "Skywalker", 1)
         t.add_child(0, 1, False)
+        child = t.find_person(1)
+        father = child.father if child else None
         self.assertEqual(
             "This is Person #0: Anakin SKYWALKER.",
-            str(t.find_person(t.find_person(1).father)),
+            str(t.find_person(father)),
         )
 
     def test_tree_add_father(self):
@@ -41,9 +43,11 @@ class TestNode(unittest.TestCase):
         t.add_person("Anakin", "Skywalker", 0)
         t.add_person("Luke", "Skywalker", 1)
         t.add_father(1, 0)
+        child = t.find_person(1)
+        father = child.father if child else None
         self.assertEqual(
             "This is Person #0: Anakin SKYWALKER.",
-            str(t.find_person(t.find_person(1).father)),
+            str(t.find_person(father)),
         )
 
     def test_tree_add_partner(self):
@@ -51,9 +55,11 @@ class TestNode(unittest.TestCase):
         t.add_person("Anakin", "Skywalker", 0)
         t.add_person("Padmé", "naberrie", 1)
         t.add_partnership(1, 0)
+        person = t.find_person(1)
+        partner = person.partners[0] if person else None
         self.assertEqual(
             "This is Person #0: Anakin SKYWALKER.",
-            str(t.find_person(t.find_person(1).partners[0])),
+            str(t.find_person(partner)),
         )
 
     def test_tree_get_free_IDs(self):
