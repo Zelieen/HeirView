@@ -29,12 +29,12 @@ def main():
         for k in range(len(col)):
             p = col[k]
             pos = Point(*p.get_center())
-            pos.x += (i * 200) + 50
+            pos.x += (i * 200) + 100
             pos.y += (k * 50) + 50
             number = p.person_ID
             person = t.find_person(number)
             name = (
-                (person.given_name + " " + person.surname)
+                f"{person.given_name} {person.surname}"
                 if person
                 else "Person not found."
             )

@@ -23,25 +23,30 @@ class Tree:
     def __repr__(self):
         return f"Tree()"
 
-    def add_person(self, given_name: str = "", surname: str = "", ID: int | None = None) -> Person:
-        """Adds a person to the tree."""
+    def add_person(self, person: Person) -> Person:
+        """Adds a finished person to the tree."""
         # check ID:
-        if ID in self.persons:
+        pid =person._ID
+        if pid in self.persons:
             print("ID is already in use for:")
-            return self.persons[ID]
-        if ID == None:
-            ID = self.get_next_free_ID()
+            return self.persons[pid]
 
         # add person to tree's dictionary
-        new_person = Person(ID, given_name, surname)
-        self.persons[ID] = new_person
+        self.persons[pid] = person
 
         # check own ID count
         if self._ID_count == 0:  # first person in the tree
-            self.root_ID = new_person._ID
+            self.root_ID = pid
         self._ID_count += 1
 
-        return self.persons[ID]
+        return self.persons[pid]
+
+    def add_person_by_name(self, given_name: str = "", surname: str = "", ID: int | None = None) -> Person:
+        """Adds a person to the tree by name."""
+        if ID == None:
+            ID = self.get_next_free_ID()
+
+        return self.add_person(Person(ID, given_name, surname))
 
     def find_person(self, ID: int | None) -> Person | None:
         """Returns a person from the tree."""
@@ -51,7 +56,7 @@ class Tree:
         """Adds a parent-child relation by IDs."""
         the_person = self.find_person(parent)
         if not the_person:
-            print(f"person #{parent} not found")
+            print(f"parent #{parent} not found")
             return
         the_child = self.find_person(child)
         if not the_child:

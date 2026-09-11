@@ -3,7 +3,7 @@ from node import Person, Family
 
 def read_in_file(directory):
     lines = []
-    with open(directory) as f:
+    with open(directory, encoding="UTF-8") as f:
         lines = f.readlines()
     lines = [
         x.strip(" ") for x in lines
