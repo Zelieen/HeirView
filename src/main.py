@@ -1,6 +1,7 @@
 from tree import Tree
 from chart import Chart
 from slate import Slate, Line, Point
+from graph_network import chart_to_graph
 
 
 def main():
@@ -29,7 +30,7 @@ def main():
         for k in range(len(col)):
             p = col[k]
             pos = Point(*p.get_center())
-            pos.x += (i * 200) + 100
+            pos.x += (i * 200) + 50
             pos.y += (k * 50) + 50
             number = p.person_ID
             person = t.find_person(number)

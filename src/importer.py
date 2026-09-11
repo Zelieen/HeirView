@@ -71,32 +71,32 @@ def collect_person_info(lines, start=0, end=None):
     p_ID = int(parts[1][1:])
 
     # get given name
-    p_g_name = None
+    p_g_name = ""
     g_name_line = find_lines_by_tags(lines[start:end], ["NAME", "GIVN"])
     if g_name_line != []:
         p_g_name = g_name_line[0][1].split("GIVN ")[1]
     # get surname
-    p_surname = None
+    p_surname = ""
     surname_line = find_lines_by_tags(lines[start:end], ["NAME", "SURN"])
     if surname_line != []:
         p_surname = surname_line[0][1].split("SURN ")[1]
 
     # get birth
-    birth_date = None
+    birth_date = ""
     birth_date_line = find_lines_by_tags(lines[start:end], ["BIRT", "DATE"])
     if birth_date_line != []:
         birth_date = birth_date_line[0][1].split("DATE ")[1]
-    birth_place = None
+    birth_place = ""
     birth_place_line = find_lines_by_tags(lines[start:end], ["BIRT", "PLAC"])
     if birth_place_line != []:
         birth_place = birth_place_line[0][1].split("PLAC ")[1].split(",")[0]
 
     # get death
-    death_date = None
+    death_date = ""
     death_date_line = find_lines_by_tags(lines[start:end], ["DEAT", "DATE"])
     if death_date_line != []:
         death_date = death_date_line[0][1].split("DATE ")[1]
-    death_place = None
+    death_place = ""
     death_place_line = find_lines_by_tags(lines[start:end], ["DEAT", "PLAC"])
     if death_place_line != []:
         death_place = death_place_line[0][1].split("PLAC ")[1].split(",")[0]
@@ -109,11 +109,11 @@ def collect_family_info(lines, start=0, end=None):
         end = len(lines) - 1
 
     # get parents
-    father_ID = None
+    father_ID = ""
     father_line = find_lines_by_tags(lines[start:end], ["HUSB"])
     if father_line != []:
         father_ID = int(father_line[0][1].split("@")[1][1:])
-    mother_ID = None
+    mother_ID = ""
     mother_line = find_lines_by_tags(lines[start:end], ["WIFE"])
     if mother_line != []:
         mother_ID = int(mother_line[0][1].split("@")[1][1:])
@@ -126,11 +126,11 @@ def collect_family_info(lines, start=0, end=None):
         child_IDs.append(c)
 
     # marriage event
-    marr_date = None
+    marr_date = ""
     marr_date_line = find_lines_by_tags(lines[start:end], ["MARR", "DATE"])
     if marr_date_line != []:
         marr_date = marr_date_line[0][1].split("DATE ")[1]
-    marr_place = None
+    marr_place = ""
     marr_place_line = find_lines_by_tags(lines[start:end], ["MARR", "PLAC"])
     if marr_place_line != []:
         marr_place = marr_place_line[0][1].split("PLAC ")[1].split(",")[0]
