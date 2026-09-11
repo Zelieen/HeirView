@@ -1,6 +1,9 @@
 from datetime import datetime
 
 
+UNKNOWN_NAME="unknown"
+UNKNOWN_SURNAME="UNKNOWN"
+
 class Person:
     """Represents a person in Heirview."""
 
@@ -25,8 +28,8 @@ class Person:
         self.partnerslist: list[int] = []  # list of family tree IDs
 
         if self.given_name == "" and self.surname == "":
-            self.given_name = "name is"
-            self.surname = "UNKNOWN"
+            self.given_name = UNKNOWN_NAME
+            self.surname = UNKNOWN_SURNAME
 
     def __str__(self):
         return f"This is Person #{self._ID}: {self.given_name} {self.surname}."
@@ -37,10 +40,11 @@ class Person:
     def add_event(
         self,
         typ: str,
-        person_list: list[int] | None = None,
-        date: datetime | str | None = None,
+        others: list[int] = [],
+        date: datetime | str = "",
         place: str = "",
     ):
+        """Creates an event for that person."""
         if typ.lower() == "birth":
             self.birth = Event(typ, [self._ID], date=date, place=place)
             return
@@ -48,24 +52,26 @@ class Person:
             self.death = Event(typ, [self._ID], date=date, place=place)
             return
 
-        new_set = {self._ID}
-        if person_list != None:
-            new_set.update(person_list)  # avoid duplicate persons
-        new_list = list(new_set)
+        attendees = {self._ID}
+        if others:
+            attendees.update(others)  # avoid duplicate persons
+        attendees = list(attendees)
 
         if typ.lower() == "marriage":
-            self.events.append(Event(typ, new_list, date=date, place=place))
+            self.events.append(Event(typ, attendees, date=date, place=place))
             return
         else:
             print(f"Unknown event type: {typ}")
 
 
 class Event:
+    """Represents an event for a person."""
+
     def __init__(
         self,
         typ: str,
         person_list: list[int] = [],
-        date: datetime | str | None = None,
+        date: datetime | str = "",
         place: str = "",
     ):
         self.type = typ.lower()  # a string like "birth", "death", "marriage"
@@ -81,12 +87,14 @@ class Event:
 
 
 class Family:
+    """Holds persons and their family relations."""
+
     def __init__(
         self,
         mother_ID: int | None = None,
         father_ID: int | None = None,
         child_IDs: list[int] = [],
-        marr_date: datetime | str | None = None,
+        marr_date: datetime | str = "",
         marr_place: str = "",
     ):
         self.mother = mother_ID
