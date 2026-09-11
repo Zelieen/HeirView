@@ -2,6 +2,7 @@ from tree import Tree
 from chart import Chart
 from slate import Slate, Line, Point
 
+
 def main():
     print("starting HeirView")
 
@@ -32,11 +33,16 @@ def main():
             pos.y += (k * 50) + 50
             number = p.person_ID
             person = t.find_person(number)
-            name = person.given_name + " " + person.surname
+            name = (
+                (person.given_name + " " + person.surname)
+                if person
+                else "Person not found."
+            )
 
             sl.draw_text(name, pos, size=12)
 
     sl.wait_for_close()
+
 
 if __name__ == "__main__":
     main()

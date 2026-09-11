@@ -11,7 +11,7 @@ class Unit:
 
     def get_position(self):
         return self.pos_x, self.pos_y
-    
+
     def set_size(self, height, width):
         self.height = height
         self.width = width
@@ -19,13 +19,14 @@ class Unit:
     def get_size(self):
         return self.height, self.width
 
+
 class Badge(Unit):
     def __init__(self, person_ID):
         super().__init__()
         self.person_ID = person_ID
 
         self.set_size(50, 50)
-    
+
     def get_center(self, side=None):
         if side == "right":
             return self.pos_x + self.width, self.pos_y + self.height // 2
@@ -36,7 +37,8 @@ class Badge(Unit):
         if side == "down":
             return self.pos_x + self.width // 2, self.pos_y + self.height
         else:
-            return self.pos_x + self.width // 2, self.pos_y + self.height // 2 #middle
+            return self.pos_x + self.width // 2, self.pos_y + self.height // 2  # middle
+
 
 class Connector(Unit):
     def __init__(self):
@@ -45,10 +47,10 @@ class Connector(Unit):
         self.right_anchor = None
         self.spacer_length = 10
 
-        self.to_left = [] #list of IDs (children)
-        self.to_right = [] #list of IDs (parents)
+        self.to_left = []  # list of IDs (children)
+        self.to_right = []  # list of IDs (parents)
 
-        '''
+        """
         Draw connecting lines between the badges in to_left and to_right
         
         - 'comb' for all to_left badges
@@ -63,4 +65,4 @@ class Connector(Unit):
             - horizontal from middle of to_left spacer ends to left_anchor (>= 0)
             - horizontal from middle of to_right spacer ends to right_anchor (>=0)
             - vertical at left_anchor from  middle of spacer ends to_left and to_right
-        '''
+        """
