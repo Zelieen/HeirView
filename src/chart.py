@@ -2,22 +2,23 @@ from unit import *
 
 
 class ChartID:
-    """Tree ID with generation number."""
-    def __init__(self, person_ID: int, generation: int):
-        self.person_ID = person_ID
-        self.gen = generation
+    """Tree ID with generation and rank in that generation."""
+    def __init__(self, person_ID: int, generation: int, rank: int = -1):
+        self.person_ID: int = person_ID
+        self.gen: int = generation
+        self.rank: int = rank
 
     def __str__(self):
-        return f"A ChartID of person #{str(self.person_ID)} at generation {str(self.gen)}."
+        return f"A ChartID of person #{str(self.person_ID)} at generation {str(self.gen)} with rank {str(self.rank)}."
 
     def __repr__(self):
-        return f"ChartID({self.person_ID}, {self.gen})"
+        return f"ChartID({self.person_ID}, {self.gen}, {self.rank})"
 
     def __eq__(self, other):
         return self.person_ID == other.person_ID
 
-    def get_person_generation(self):
-        return self.person_ID, self.gen
+    def get_chart_person(self) -> tuple[int, int, int]:
+        return self.person_ID, self.gen, self.rank
 
 def renumber_generations(chart_ids: list[ChartID]) -> list[ChartID]:
     """Normalises generation numbers into range 0-positive."""
@@ -30,29 +31,32 @@ def renumber_generations(chart_ids: list[ChartID]) -> list[ChartID]:
 
     return chart_ids
 
-def new_on_chart_list(chart_list, to_add):
-        """
-        if there is a duplicate, only keep the highest generation
-        """
-        new_persons = []
-        for chartID in to_add:
-            found = False
-            for i in range(len(chart_list)):
-                if chartID == chart_list[i]:
-                    max_gen = max(chart_list[i].gen, chartID.gen)
-                    chart_list[i].gen = max_gen
-                    found = True
-                    break
+def new_on_chart_list(chart_list: list[ChartID], to_add: list[ChartID]) -> list[ChartID]:
+    """
+    Adds new ChartIDs and returns non-duplicates. 
+        
+    If there is a duplicate in the list,
+    only keep the highest generation.
+    """
+    new_persons: list[ChartID] = []
+    for chartID in to_add:
+        found = False
+        for i in range(len(chart_list)):
+            if chartID == chart_list[i]:
+                max_gen = max(chart_list[i].gen, chartID.gen)
+                chart_list[i].gen = max_gen
+                found = True
+                break
 
-            if not found:
-                chart_list.append(chartID)
-                new_persons.append(chartID)
-        return new_persons
+        if not found:
+            chart_list.append(chartID)
+            new_persons.append(chartID)
+    return new_persons
 
 class Chart:
     def __init__(self):
-        self.badge_col = []  # a list of lists: generation columns of badges
-        self.connect_col = []  # a list of lists: columns of connectors between badge columns
+        self.badge_col: list[list[Badge]] = []  # list generations
+        self.connect_col: list[list[Connector]] = []  # between generations
         self.pos_x = 0
         self.pos_y = 0
 
@@ -62,30 +66,34 @@ class Chart:
     def __repr__(self):
         return f"Chart()"
 
-    def get_number_of_persons(self):
+    def get_number_of_persons(self) -> int:
+        """Sums persons over all generations."""
         num = 0
         for col in self.badge_col:
             num += len(col)
         return num
 
-    def get_number_of_connectors(self):
+    def get_number_of_connectors(self) -> int:
+        """Sums families over all generations."""
         num = 0
         for col in self.connect_col:
             num += len(col)
         return num
 
     def inverse_generations(self):
+        """Swaps generation order."""
         self.badge_col.reverse()
         self.connect_col.reverse()
 
-    def add_person(self, ID, generation):
+    def add_person(self, ID: int, generation: int, rank: int = -1):
+        """Adds a person as badge to the chart."""
         badge = self.make_badge(ID)
-        self.add_badge(badge, generation)
+        self.add_badge(badge, generation, rank)
 
-    def add_persons(self, list_chartIDs):
+    def add_persons(self, list_chartIDs: list[ChartID]):
+        """Adds several ChartIDs as badges to the chart."""
         for chartID in list_chartIDs:
-            person_ID, generation = chartID.get_person_generation()
-            self.add_person(person_ID, generation)
+            self.add_person(chartID.person_ID, chartID.gen, chartID.rank)
 
     def sort_ranks(self):
         """
@@ -192,7 +200,7 @@ class Chart:
                             if person_ID == father_ID:
                                 # found same father
                                 found_index = i
-                                return found_index  # and break the loop
+                                break
         return found_index
 
     # --- all about pixel position ---
