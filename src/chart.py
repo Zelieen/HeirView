@@ -59,6 +59,7 @@ class Chart:
         self.connect_col: list[list[Connector]] = []  # between generations
         self.pos_x = 0
         self.pos_y = 0
+        self.slots: dict[int, dict[int, Badge]]  # gen: slot: Badge
 
     def __str__(self):
         return f"A Chart with {str(self.get_number_of_persons())} persons in {str(len(self.badge_col))} generations and {str(self.get_number_of_connectors())} families."
@@ -84,6 +85,31 @@ class Chart:
         """Swaps generation order."""
         self.badge_col.reverse()
         self.connect_col.reverse()
+
+    def make_free_slot(self, generation: int, rank: int) -> None:
+        """
+        Moves slots to free up a slot in this generation.
+        
+        This will only move continuously occupied slots
+        until there is a free slot encountered.
+        """
+        occupied = self.slots[generation].keys()
+        if rank not in occupied:
+            return
+
+        occupied = sorted(occupied)
+        move_list: list[int] = []
+        test_rank = rank
+        for slot_rank in occupied[occupied.index(rank):]:
+            if test_rank < slot_rank:
+                break
+            move_list.append(slot_rank)
+            test_rank += 1
+
+
+        # move higher rank slots higher out of the way
+        for slot_rank in reversed(move_list):
+            self.slots[generation][slot_rank + 1] = self.slots[generation][slot_rank]
 
     def add_person(self, ID: int, generation: int, rank: int = -1):
         """Adds a person as badge to the chart."""
@@ -120,7 +146,7 @@ class Chart:
         new_badge = Badge(person_ID)
         return new_badge
 
-    def add_badge(self, badge, generation, rank=-1):
+    def add_badge(self, badge: Badge, generation: int, rank: int = -1):
         if generation < 0:
             return
         if generation < len(self.badge_col):
@@ -131,6 +157,13 @@ class Chart:
         else:
             self.badge_col.append([])
             self.badge_col[-1].append(badge)
+
+        # new dict structure
+        if generation not in self.slots:
+            self.slots[generation] = {rank: badge}
+        else:
+            self.make_free_slot(generation, rank)
+            self.slots[generation][rank] = badge
 
     def search_badge_place_by_ID(self, ID):
         for c in range(len(self.badge_col)):
